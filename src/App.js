@@ -6,48 +6,49 @@ const PROFILE = {
   name: "Nikolaos Fanourakis",
   title: "Data Scientist, PhD",
   location: "Heraklion, Crete, Greece",
-  email: "nfanourakis@sataliadata.com",
-  github: "https://github.com/nikolaosfanourakis",
-  linkedin: "https://linkedin.com/in/nikolaosfanourakis",
+  email: "nikosfanourakis5@gmail.com",
+  github: "https://github.com/nikofan18",
+  linkedin: "https://www.linkedin.com/notifications/?filter=all",
   cv: "/Fanourakis_CV.pdf",
   shortBio:
-    "Data Scientist with a PhD in Computer Science specializing in machine learning, knowledge graphs, embeddings and entity alignment. Currently working at SATALIA, developing innovative AI solutions for real-world challenges. Passionate about research, ML, and software engineering.",
+    "Data Scientist with a PhD in Computer Science specializing in machine learning, graph neural networks, embeddings and entity alignment. Currently working at SATALIA, developing innovative ML / AI solutions for real-world challenges. Passionate about research, neural networks, and software engineering.",
 };
 
 const PLACEHOLDERS = {
   experience: [
-    { role: "Data Scientist", org: "SATALIA", period: "2025 — Present", desc: "Developing machine learning solutions and AI applications for data-driven insights. Working on computer vision, predictive modeling, and advanced analytics projects." },
-    { role: "PhD Researcher", org: "Technical University of Crete", period: "2018 — 2024", desc: "Conducted advanced research in computer science with focus on machine learning, computer vision, and biomedical applications. Published research in peer-reviewed journals and conferences." },
-    { role: "Research Assistant", org: "Various Research Projects", period: "2016 — 2018", desc: "Contributed to multiple research initiatives in machine learning and data analysis, developing expertise in algorithm implementation and experimental design." },
+    { role: "Data Scientist", org: "SATALIA", period: "February 2025 — Present", desc: "Building machine learning and AI-driven solutions for marketing use-cases and developing cloud-based pipelines for embedding generation and evaluation." },
+    { role: "Postgraduate and Doctoral Research Assistant - Data Scientist", org: "ISL, FORTH-ICS", period: "February 2025 — Present", desc: "Research project related to responsible entity alignment, using knowledge graph embeddings." },
+    { role: "R&D in Benchmarking Team", org: "RelationalAI, Inc, Berkeley (Remote Internship)", period: " June 2024 — August 2024", desc: "Benchmarking implementation in PyRel and performance analysis." },
+    { role: "Data Scientist", org: "ETIS Laboratory, CY Cergy Paris Université (Internship)", period: "March 2020 — September 2020", desc: "Start of master thesis with title: “Graph Embeddings Methods for Entity Resolution“" },
+    { role: "Front-End Engineer", org: "Omnixell", period: "March 2020 — September 2020", desc: "Web Development for cross-platform applications using Ionic 3." },
+    { role: "Full Stack Web Developer", org: "ISL, FORTH-ICS", period: "March 2020 — September 2020", desc: "Thesis: “Speleothem: An information System for Caves Based in Semantic Web technologies“" },
   ],
   education: [
-    { degree: "Ph.D. in Computer Science", inst: "Technical University of Crete", period: "2018 — 2024" },
-    { degree: "M.Sc. in Computer Science", inst: "Technical University of Crete", period: "2016 — 2018" },
-    { degree: "B.Sc. in Applied Mathematics", inst: "University of Crete", period: "2012 — 2016" },
+    { degree: "Ph.D. in Computer Science", inst: "Computer Science Department of Univeristy Crete", period: "October 2021 — May 2025" },
+    { degree: "M.Sc. in Computer Science", inst: "Computer Science Department of University Crete", period: "January 2019 — November 2021" },
+    { degree: "B.Sc. in Computer Science", inst: "Computer Science Department of Univeristy Crete", period: "September 2013 — January 2019" },
   ],
-  projects: [
-    { title: "Computer Vision for Biomedical Applications", desc: "Developed advanced machine learning models for medical image analysis and diagnostic support systems during PhD research." },
-    { title: "Machine Learning Pipeline at SATaALIA", desc: "Built end-to-end ML solutions for data analytics and predictive modeling, implementing scalable algorithms for business intelligence." },
-    { title: "Research Publications & Open Source", desc: "Contributed to academic research with published papers in computer science conferences and journals, sharing methodologies and findings." },
-    { title: "Data Science Consulting", desc: "Applied statistical analysis and machine learning techniques to solve real-world problems across various domains and industries." },
-  ],
+  // projects: [
+  //   { title: "Computer Vision for Biomedical Applications", desc: "Developed advanced machine learning models for medical image analysis and diagnostic support systems during PhD research." },
+  //   { title: "Machine Learning Pipeline at SATaALIA", desc: "Built end-to-end ML solutions for data analytics and predictive modeling, implementing scalable algorithms for business intelligence." },
+  //   { title: "Research Publications & Open Source", desc: "Contributed to academic research with published papers in computer science conferences and journals, sharing methodologies and findings." },
+  //   { title: "Data Science Consulting", desc: "Applied statistical analysis and machine learning techniques to solve real-world problems across various domains and industries." },
+  // ],
   publications: [
-    { title: "Machine Learning Approaches for Biomedical Image Analysis", venue: "Computer Vision Conference", year: "2023", link: "#" },
-    { title: "Advanced Algorithms for Medical Diagnostic Systems", venue: "Journal of Biomedical Computing", year: "2022", link: "#" },
-    { title: "Deep Learning Applications in Healthcare", venue: "International AI Conference", year: "2021", link: "#" },
-    { title: "Statistical Methods for Complex Data Analysis", venue: "Applied Mathematics Journal", year: "2020", link: "#" },
+    { title: "Taming knowledge graphs heterogeneity and bias in entity alignment.", venue: "Dissertation", year: "2025", link: "https://freader.ekt.gr/eadd/index.php?doc=58986&lang=el"},
+    { title: "HybEA: Hybrid Attention Models for Entity Alignment.", venue: "Under review", year: "2025", link: "https://arxiv.org/pdf/2407.02862" },
+    { title: "Knowledge Graph Embedding Methods for Entity Alignment: Experimental Review.", venue: "DMKD", year: "2023", link: "https://link.springer.com/article/10.1007/S10618-023-00941-9" },
+    { title: "Structural bias in knowledge graphs for the entity alignment task", venue: "ESWC", year: "2023", link: "https://cris.tuni.fi/ws/portalfiles/portal/95846417/eswc2023-2_Stefanidis.pdf" },
+    { title: "FairER demo: Fairness-Aware and Explainable Entity Resolution.", venue: "ISWC", year: "2023", link: "https://hozo.jp/ISWC2023_PD-Industry-proc/ISWC2023_paper_407.pdf" },
+    { title: "Speleothem-An Information System for Caves Based on Semantic Web Technologies.", venue: "ESWC", year: "2018", link: "https://2018.eswc-conferences.org/files/posters-demos/paper_255.pdf" },
   ],
   presentations: [
-    { title: "AI Solutions for Business Intelligence", event: "SATaALIA Tech Talk", date: "September 2024", location: "Heraklion, Greece", link: "#" },
-    { title: "PhD Defense: Computer Vision Applications", event: "Technical University of Crete", date: "June 2024", location: "Chania, Greece", link: "#" },
-    { title: "Machine Learning for Medical Applications", event: "Greek Computer Science Conference", date: "October 2023", location: "Athens, Greece", link: "#" },
-    { title: "Research Methodologies in AI", event: "Graduate Student Symposium", date: "May 2022", location: "Technical University of Crete", link: "#" },
+    { title: "Taming knowledge graphs heterogeneity and bias in entity alignment", event: "PhD Defense", date: "April 2025", location: "Heraklion, Greece", link: "/literature/Defense_Fanourakis.pdf" },
   ],
   certifications: [
-    { title: "PhD in Computer Science", issuer: "Technical University of Crete", date: "2024", expiry: "Never", link: "#", badge: "�" },
-    { title: "Python for Data Science Specialization", issuer: "Coursera", date: "2023", expiry: "Never", link: "#", badge: "🐍" },
-    { title: "Machine Learning Certification", issuer: "Stanford Online", date: "2022", expiry: "Never", link: "#", badge: "🤖" },
-    { title: "Deep Learning Specialization", issuer: "deeplearning.ai", date: "2021", expiry: "Never", link: "#", badge: "🧠" },
+    { title: "Learning Vertex AI: MLOps with Google Cloud", issuer: "LinkedIn", date: "2025", expiry: "Never", link: "https://www.linkedin.com/learning/certificates/9d8e19a322c4137db78300252ff576e52825264c5a4900387ef3edc32655c410", badge: "☁️" },
+    { title: "Google Cloud Platform for Machine Learning Essential Training", issuer: "LinkedIn", date: "2025", expiry: "Never", link: "https://www.linkedin.com/learning/certificates/59f1f48749d25771178036fd6f5dcdf6b27bd99ed3813c3ba32d5278f288f274", badge: "☁️" },
+    { title: "Fairness in AI", issuer: "1st Greek ACM-W Chapter Winter School", date: "2022", expiry: "Never", link: "https://drive.google.com/file/d/1o8Fm4tosETu_iPi54lstq3b0nzJ8K-DC/view?pli=1", badge: "🤖" },
   ],
   photos: [
     { id: 1, src: `/photos/DSC_0085.jpg`, caption: `Graffiti Building`, equipment: null, category: "street" },
@@ -186,10 +187,10 @@ function Header({ theme, setTheme }) {
     { href: "#about", label: "About", id: "about" },
     { href: "#work", label: "Experience", id: "work" },
     { href: "#education", label: "Education", id: "education" },
-    { href: "#projects", label: "Projects", id: "projects" },
+    // { href: "#projects", label: "Projects", id: "projects" },
+    { href: "#certifications", label: "Certifications", id: "certifications" },
     { href: "#publications", label: "Publications", id: "publications" },
     { href: "#presentations", label: "Presentations", id: "presentations" },
-    { href: "#certifications", label: "Certifications", id: "certifications" },
   ];
 
   return (
@@ -329,7 +330,7 @@ function Hero() {
               rel="noopener noreferrer" 
               className="group flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200 text-xs font-medium"
             >
-              <span className="text-xs group-hover:scale-110 transition-transform">🔗</span>
+              <span className="text-xs group-hover:scale-110 transition-transform">💼</span>
               LinkedIn
             </a>
           </div>
@@ -356,7 +357,7 @@ function SectionTitle({ children }) {
 function ExperienceList() {
   return (
     <div id="work">
-      <SectionTitle>Experience</SectionTitle>
+      <SectionTitle>Work Experience</SectionTitle>
       <div className="space-y-4">
         {PLACEHOLDERS.experience.map((e, i) => (
           <div key={i} className="p-4 border rounded-lg bg-white/80 dark:bg-slate-900/60 scroll-animate card-hover shimmer backdrop-blur-sm">
@@ -388,26 +389,26 @@ function EducationList() {
   );
 }
 
-function Projects() {
-  return (
-    <div id="projects">
-      <SectionTitle>Projects</SectionTitle>
-      <div className="grid gap-4 md:grid-cols-2">
-        {PLACEHOLDERS.projects.map((p, i) => (
-          <article key={i} className="p-4 border rounded-lg scroll-animate card-hover shimmer bg-white/80 dark:bg-slate-900/60 backdrop-blur-sm">
-            <div className="font-medium">{p.title}</div>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{p.desc}</p>
-          </article>
-        ))}
-      </div>
-    </div>
-  );
-}
+// function Projects() {
+//   return (
+//     <div id="projects">
+//       <SectionTitle>Projects</SectionTitle>
+//       <div className="grid gap-4 md:grid-cols-2">
+//         {PLACEHOLDERS.projects.map((p, i) => (
+//           <article key={i} className="p-4 border rounded-lg scroll-animate card-hover shimmer bg-white/80 dark:bg-slate-900/60 backdrop-blur-sm">
+//             <div className="font-medium">{p.title}</div>
+//             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{p.desc}</p>
+//           </article>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }
 
 function Publications() {
   return (
     <div id="publications">
-      <SectionTitle>Publications</SectionTitle>
+      <SectionTitle>Publications and Dissertation</SectionTitle>
       <ul className="space-y-3">
         {PLACEHOLDERS.publications.map((pub, i) => (
           <li key={i} className="p-4 border rounded-lg bg-white/80 dark:bg-slate-900/60 scroll-animate card-hover shimmer backdrop-blur-sm flex justify-between items-start">
@@ -416,7 +417,7 @@ function Publications() {
               <div className="text-sm text-slate-500">{pub.venue} • {pub.year}</div>
             </div>
             <div>
-              <a href={pub.link} className="text-sm underline">PDF</a>
+              <a href={pub.link} className="text-sm underline" target='_blank'>PDF</a>
             </div>
           </li>
         ))}
@@ -439,7 +440,7 @@ function Presentations() {
                 <div className="mt-1 text-sm text-slate-500">{pres.date} • {pres.location}</div>
               </div>
               <div>
-                <a href={pres.link} className="text-sm underline">View</a>
+                <a href={pres.link} className="text-sm underline" target="_blank" >View</a>
               </div>
             </div>
           </div>
@@ -452,7 +453,7 @@ function Presentations() {
 function Certifications() {
   return (
     <div id="certifications">
-      <SectionTitle>Certifications</SectionTitle>
+      <SectionTitle>Licenses and Certifications</SectionTitle>
       <div className="grid gap-4 md:grid-cols-2">
         {PLACEHOLDERS.certifications.map((cert, i) => (
           <div key={i} className="p-4 border rounded-lg bg-white/80 dark:bg-slate-900/60 scroll-animate card-hover shimmer backdrop-blur-sm">
@@ -468,7 +469,7 @@ function Certifications() {
                 </div>
               </div>
               <div>
-                <a href={cert.link} className="text-sm underline">View</a>
+                <a href={cert.link} className="text-sm underline" target='_blank'>View</a>
               </div>
             </div>
           </div>
@@ -659,7 +660,7 @@ function PhotosPage() {
               { key: 'nature', label: 'Nature' },
               { key: 'portrait', label: 'Portrait' },
               { key: 'street', label: 'Street' },
-              { key: 'animal', label: 'animals' },
+              { key: 'animal', label: 'Animals' },
             ].map(filter => (
               <button
                 key={filter.key}
@@ -695,16 +696,16 @@ function PhotosPage() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
           {currentPhotos.map((photo, index) => (
-            <div key={photo.id} className="group overflow-hidden rounded-lg border cursor-pointer relative" 
+            <div key={photo.id} className="group overflow-hidden rounded-lg border cursor-pointer relative break-inside-avoid mb-4" 
                  onClick={(e) => {
                    e.preventDefault();
                    e.stopPropagation();
                    setActive(photo);
                  }}>
               {imageErrors[photo.id] ? (
-                <div className="w-full h-56 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                <div className="w-full aspect-[4/3] bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                   <div className="text-center text-gray-500 dark:text-gray-400">
                     <div className="text-2xl mb-2">📸</div>
                     <div className="text-sm">Photo {photo.id}</div>
@@ -715,7 +716,7 @@ function PhotosPage() {
                   <img 
                     src={photo.src} 
                     alt={photo.caption} 
-                    className="object-cover w-full h-56 transition-transform duration-200 group-hover:scale-105" 
+                    className="w-full h-auto object-cover transition-transform duration-200 group-hover:scale-105" 
                     onError={() => handleImageError(photo.id)}
                   />
                   {/* Hover overlay with title */}
@@ -865,7 +866,7 @@ function HomePage() {
         <div className="scroll-animate"><ExperienceList /></div>
         <div className="scroll-animate"><EducationList /></div>
         <div className="scroll-animate"><Certifications /></div>
-        <div className="scroll-animate"><Projects /></div>
+        {/* <div className="scroll-animate"><Projects /></div> */}
         <div className="scroll-animate"><Publications /></div>
         <div className="scroll-animate"><Presentations /></div>
         <footer className="mt-12 mb-6 pb-12 text-sm text-slate-500">© {new Date().getFullYear()} {PROFILE.name}</footer>

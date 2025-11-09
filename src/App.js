@@ -119,6 +119,7 @@ function useScrollAnimation() {
 function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, hasNext, hasPrev }) {
   const [notice, setNotice] = useState(null); // must be before any conditional return
   const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isSafari = typeof navigator !== 'undefined' && /Safari/i.test(navigator.userAgent) && !/Chrome|Chromium|Edg|OPR|Firefox/i.test(navigator.userAgent);
   if (!src) return null;
 
   const filename = src.split('/').pop();
@@ -150,6 +151,31 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
       const canShareFiles = navigator.canShare && navigator.canShare({ files: [file] });
         // Fallback: open in new tab for manual long press
         window.open(src, '_blank');
+  };
+
+  // Desktop download handler with Safari fallback (Safari often ignores download attribute or blocks file save silently)
+  const handleDesktopDownload = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      if (isSafari) {
+        // Open image in a new tab so user can right-click or save; Safari more reliable this way
+        window.open(src, '_blank');
+      } else {
+        // Programmatic anchor click for browsers honoring download attribute
+        const a = document.createElement('a');
+        a.href = src;
+        a.download = filename || `photo-${photoId}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    } catch (err) {
+      window.open(src, '_blank'); // last resort
+      setNotice('Opened in new tab');
+    } finally {
+      setTimeout(() => setNotice(null), 1800);
+    }
   };
 
   return (
@@ -208,12 +234,11 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
               </svg>
             </button>
           ) : (
-            <a
-              href={src}
-              download={filename || true}
+            <button
+              onClick={handleDesktopDownload}
               className="absolute top-4 right-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
               aria-label="Download photo"
-              title="Download"
+              title={isSafari ? "Open in new tab" : "Download"}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -229,7 +254,7 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
                 <path d="M7 10l5 5 5-5" />
                 <path d="M12 15V3" />
               </svg>
-            </a>
+            </button>
           )}
           
           {/* Previous Button */}

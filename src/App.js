@@ -208,7 +208,7 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
     await downloadImageWithWatermark({
       src,
       filename,
-      watermark: `${caption || 'Photo'} © ${new Date().getFullYear()} ${PROFILE.name}`
+      watermark: `© ${new Date().getFullYear()} ${PROFILE.name}`
     });
   };
 
@@ -1186,21 +1186,11 @@ function HomePage() {
   );
 }
 
-function TitleUpdater() {
-  const location = useLocation();
-  useEffect(() => {
-    const base = 'Nikolaos Fanourakis';
-    const page = location.pathname === '/gallery' ? 'Photography Gallery' : 'Portfolio & Publications';
-    document.title = `${base} — ${page}`;
-  }, [location.pathname]);
-  return null;
-}
 
 export default function App() {
   const [theme, setTheme] = useTheme();
   return (
-  <Router basename={(process.env.PUBLIC_URL || '').replace(/^https?:\/\/[^/]+/, '') || '/'}>
-      <TitleUpdater />
+    <Router>
       <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-200">
         <Header theme={theme} setTheme={setTheme} />
         <Routes>

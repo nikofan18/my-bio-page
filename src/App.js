@@ -11,7 +11,7 @@ const PROFILE = {
   linkedin: "https://www.linkedin.com/notifications/?filter=all",
   cv: "/Fanourakis_CV.pdf",
   shortBio:
-    "Data Scientist with a PhD in Computer Science specializing in machine learning, graph neural networks, embeddings and entity alignment. Currently working at SATALIA, developing innovative ML / AI solutions for real-world challenges. Passionate about research, data science, and software engineering.",
+    "Data Scientist with a PhD in Computer Science specializing in machine learning, graph neural networks, embeddings and entity alignment. Currently working at SATALIA, developing innovative ML / AI solutions for real-world challenges and data pipelines. Passionate about research, data science, and software engineering.",
 };
 
 const PLACEHOLDERS = {

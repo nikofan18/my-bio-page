@@ -2,5 +2,4 @@
 User-agent: *
 Disallow:
 
-# Allow all bots. Sitemap helps discovery of key routes.
-Sitemap: https://www.nfanourakis.com/sitemap.xml
+# (SEO elements removed per request)

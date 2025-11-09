@@ -212,10 +212,9 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
                 strokeLinejoin="round"
                 className="w-6 h-6"
               >
-                <path d="M4 4h16v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z" />
-                <path d="M12 13l3-3-3-3" />
-                <path d="M9 10h6" />
-                <path d="M8 21h8" />
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <path d="M7 10l5 5 5-5" />
+                <path d="M12 15V3" />
               </svg>
             </button>
           ) : (

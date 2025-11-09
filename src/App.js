@@ -697,39 +697,44 @@ function PhotosPage() {
             ))}
           </div>
 
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
-          {currentPhotos.map((photo, index) => (
-            <div key={photo.id} className="group overflow-hidden rounded-lg border cursor-pointer relative break-inside-avoid mb-4" 
-                 onClick={(e) => {
-                   e.preventDefault();
-                   e.stopPropagation();
-                   setActive(photo);
-                 }}>
-              {imageErrors[photo.id] ? (
-                <div className="w-full aspect-[4/3] bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                  <div className="text-center text-gray-500 dark:text-gray-400">
-                    <div className="text-2xl mb-2">📸</div>
-                    <div className="text-sm">Photo {photo.id}</div>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <img 
-                    src={photo.src} 
-                    alt={photo.caption} 
-                    className="w-full h-auto object-cover transition-transform duration-200 group-hover:scale-105" 
-                    onError={() => handleImageError(photo.id)}
-                  />
-                  {/* Hover overlay with title */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                    <div className="text-white text-center px-4">
-                      <p className="font-medium text-sm">{photo.caption}</p>
+          {/* 3x3 uniform grid layout */}
+          <div className="grid grid-cols-3 gap-4">
+            {currentPhotos.map(photo => (
+              <div
+                key={photo.id}
+                className="group relative rounded-lg border overflow-hidden bg-white/20 dark:bg-slate-800/30 backdrop-blur-sm shadow-sm hover:shadow-md transition cursor-pointer aspect-[4/3]"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setActive(photo);
+                }}
+              >
+                {imageErrors[photo.id] ? (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
+                    <div className="text-gray-500 dark:text-gray-400 text-sm flex flex-col items-center">
+                      <span className="text-2xl mb-1">📸</span>
+                      Photo {photo.id}
                     </div>
                   </div>
-                </>
-              )}
-            </div>
-          ))}
+                ) : (
+                  <>
+                    <img
+                      src={photo.src}
+                      alt={photo.caption}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      onError={() => handleImageError(photo.id)}
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end">
+                      <div className="w-full px-2 py-1 text-[11px] sm:text-xs font-medium text-white truncate">
+                        {photo.caption}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
           </div>
 
           {/* Pagination Controls - commented out for now

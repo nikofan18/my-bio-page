@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import ExifReader from 'exifreader';
 
 const PROFILE = {
@@ -215,7 +215,7 @@ function Header({ theme, setTheme }) {
               </Link>
             ))}
             <Link 
-              to="/photos" 
+              to="/gallery" 
               className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-200 hover:underline focus:outline-none focus:text-slate-800 dark:focus:text-slate-200"
             >
               Photography
@@ -255,7 +255,7 @@ function Header({ theme, setTheme }) {
                 </Link>
               ))}
               <Link 
-                to="/photos" 
+                to="/gallery" 
                 className="block py-2 px-2 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -418,7 +418,7 @@ function Publications() {
               <div className="text-sm text-slate-500">{pub.venue} • {pub.year}</div>
             </div>
             <div>
-              <a href={pub.link} className="text-sm underline" target='_blank'>PDF</a>
+                <a href={pub.link} className="text-sm underline" target='_blank' rel="noopener noreferrer">PDF</a>
             </div>
           </li>
         ))}
@@ -441,7 +441,7 @@ function Presentations() {
                 <div className="mt-1 text-sm text-slate-500">{pres.date} • {pres.location}</div>
               </div>
               <div>
-                <a href={pres.link} className="text-sm underline" target="_blank" >View</a>
+                <a href={pres.link} className="text-sm underline" target="_blank" rel="noopener noreferrer">View</a>
               </div>
             </div>
           </div>
@@ -470,7 +470,7 @@ function Certifications() {
                 </div>
               </div>
               <div>
-                <a href={cert.link} className="text-sm underline" target='_blank'>View</a>
+                <a href={cert.link} className="text-sm underline" target='_blank' rel="noopener noreferrer">View</a>
               </div>
             </div>
           </div>
@@ -480,8 +480,7 @@ function Certifications() {
   );
 }
 
-
-
+// Photo gallery page
 function PhotosPage() {
   const [active, setActive] = useState(null);
   const [imageErrors, setImageErrors] = useState({});
@@ -492,28 +491,22 @@ function PhotosPage() {
   // const [currentPage, setCurrentPage] = useState(1);
   // const photosPerPage = 9;
 
-  const handleImageError = (id) => {
-    setImageErrors(prev => ({ ...prev, [id]: true }));
-  };
-
   const extractMetadataFromUrl = async (imageUrl) => {
     try {
       const response = await fetch(imageUrl);
       const arrayBuffer = await response.arrayBuffer();
       const tags = await ExifReader.load(arrayBuffer);
-      
-      console.log('EXIF tags found:', tags); // Debug log
-      
+
       // Extract camera information
       const model = tags.Model?.description || '';
       const camera = model.replace('NIKON ', '').replace('Z50_2', 'Z50II').trim() || 'Z50II';
-      
+
       // Extract shooting parameters
       const focalLength = tags.FocalLength?.description;
       const aperture = tags.FNumber?.description;
       const iso = tags.ISOSpeedRatings?.description || tags.ISO?.description;
       const shutterSpeed = tags.ExposureTime?.description;
-      
+
       // Build clean equipment string in desired format
       const params = [];
       params.push(camera);
@@ -521,7 +514,7 @@ function PhotosPage() {
       if (aperture) params.push(`${aperture}`);
       if (shutterSpeed) params.push(`${shutterSpeed}s`);
       if (iso) params.push(`ISO ${iso}`);
-      
+
       return params.join(' ');
     } catch (error) {
       console.log('Failed to extract EXIF metadata:', error);
@@ -584,6 +577,10 @@ function PhotosPage() {
     if (hasPrev) {
       setActive(filteredPhotos[currentIndex - 1]);
     }
+  };
+
+  const handleImageError = (id) => {
+    setImageErrors(prev => ({ ...prev, [id]: true }));
   };
 
   return (
@@ -889,7 +886,8 @@ export default function App() {
         <Header theme={theme} setTheme={setTheme} />
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/photos" element={<PhotosPage />} />
+          <Route path="/gallery" element={<PhotosPage />} />
+          <Route path="/photos" element={<Navigate to="/gallery" replace />} />
         </Routes>
       </div>
     </Router>

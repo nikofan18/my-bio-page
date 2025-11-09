@@ -11,11 +11,6 @@
       "src": "favicon.svg",
       "type": "image/svg+xml",
       "sizes": "any"
-    },
-    {
-      "src": "logo.svg",
-      "type": "image/svg+xml",
-      "sizes": "any"
     }
   ],
   "start_url": ".",

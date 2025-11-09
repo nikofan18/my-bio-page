@@ -142,6 +142,32 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
     }
   };
 
+  // Mobile: attempt to share the actual image file (lets user Save Image to gallery from share sheet)
+  const handleMobileSave = async () => {
+    try {
+      setNotice('Preparing image…');
+      const response = await fetch(src);
+      const blob = await response.blob();
+      const fileName = filename || `photo-${photoId}.jpg`;
+      const file = new File([blob], fileName, { type: blob.type || 'image/jpeg' });
+      const canShareFiles = navigator.canShare && navigator.canShare({ files: [file] });
+      if (canShareFiles) {
+        await navigator.share({ files: [file], title: caption || 'Photo', text: caption || 'Photo' });
+        setNotice('Share sheet opened');
+      } else {
+        // Fallback: open in new tab for manual long press
+        window.open(src, '_blank');
+        setNotice('Opened — long press to save');
+      }
+    } catch (err) {
+      console.warn('Share failed:', err);
+      window.open(src, '_blank');
+      setNotice('Fallback open — long press to save');
+    } finally {
+      setTimeout(() => setNotice(null), 2500);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-4" onClick={onClose}>
       <div className="flex flex-col items-center max-w-[95vw] max-h-[95vh]" onClick={(e) => e.stopPropagation()}>
@@ -178,14 +204,10 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
           </button>
           {isMobile ? (
             <button
-              onClick={() => {
-                window.open(src, '_blank');
-                setNotice('Opened image — long press to save');
-                setTimeout(() => setNotice(null), 2200);
-              }}
+              onClick={handleMobileSave}
               className="absolute top-4 right-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
-              aria-label="Open image in new tab"
-              title="Open image"
+              aria-label="Save/share image"
+              title="Save / Share"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -197,9 +219,10 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
                 strokeLinejoin="round"
                 className="w-6 h-6"
               >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <path d="M7 10l5 5 5-5" />
-                <path d="M12 15V3" />
+                <path d="M4 4h16v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z" />
+                <path d="M12 13l3-3-3-3" />
+                <path d="M9 10h6" />
+                <path d="M8 21h8" />
               </svg>
             </button>
           ) : (

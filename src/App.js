@@ -57,6 +57,7 @@ const PLACEHOLDERS = {
     { id: 5, src: `/photos/DSC_0471.JPG`, caption: `The big boss`, equipment: null, category: "animal" },
     { id: 6, src: `/photos/IMG_2971.jpg`, caption: `The krow`, equipment: null, category: "animal" },
     { id: 7, src: `/photos/DSC_0579.jpg`, caption: `Blue Nature`, equipment: null, category: "nature" },
+    { id: 8, src: `/photos/playfull_cat.jpg`, caption: `Playful Cat`, equipment: null, category: "animal" },
   ],
 };
 
@@ -505,7 +506,7 @@ function PhotosPage() {
       
       // Extract camera information
       const model = tags.Model?.description || '';
-      const camera = model.replace('NIKON ', '').replace('Z50_2', 'Z50II').trim() || 'Unknown Camera';
+      const camera = model.replace('NIKON ', '').replace('Z50_2', 'Z50II').trim() || 'Z50II';
       
       // Extract shooting parameters
       const focalLength = tags.FocalLength?.description;

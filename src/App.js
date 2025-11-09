@@ -131,22 +131,25 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
   const handleShare = async () => {
     const shareUrl = buildShareUrl();
     const canNativeShare = typeof navigator !== 'undefined' && navigator.share;
+    const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (canNativeShare) {
       try {
         await navigator.share({ url: shareUrl, title: caption || 'Photo', text: caption || 'Photo' });
-        // Successful native share: no toast, exit.
-        return;
+        return; // mobile native share or desktop supporting share
       } catch (shareErr) {
-        // Native share failed or was cancelled; fall back to copy.
+        // If share fails on mobile, do not copy (mobile should not show copied per requirement)
+        if (isMobile) return;
       }
     }
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setNotice('Copied!');
-    } catch (copyErr) {
-      console.warn('Copy fallback failed (suppressed notice):', copyErr);
-    } finally {
-      if (notice) setTimeout(() => setNotice(null), 1800);
+    // Desktop browsers only: perform copy
+    if (!isMobile) {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setNotice('Copied!');
+        setTimeout(() => setNotice(null), 1800);
+      } catch (copyErr) {
+        console.warn('Desktop copy failed (suppressed notice):', copyErr);
+      }
     }
   };
 
@@ -669,21 +672,23 @@ function PhotosPage() {
     e.stopPropagation(); // prevent opening lightbox
     const shareUrl = `${window.location.origin}/gallery#photo-${photo.id}`;
     const canNativeShare = typeof navigator !== 'undefined' && navigator.share;
+    const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (canNativeShare) {
       try {
         await navigator.share({ url: shareUrl, title: photo.caption || 'Photo', text: photo.caption || 'Photo' });
-        return; // no toast on successful native share
+        return;
       } catch (shareErr) {
-        // fall through to copy fallback
+        if (isMobile) return; // do not copy on mobile if share fails
       }
     }
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setTileNotice('Copied!');
-    } catch (copyErr) {
-      console.warn('Copy fallback failed (suppressed notice):', copyErr);
-    } finally {
-      if (tileNotice) setTimeout(() => setTileNotice(null), 1800);
+    if (!isMobile) {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setTileNotice('Copied!');
+        setTimeout(() => setTileNotice(null), 1800);
+      } catch (copyErr) {
+        console.warn('Desktop copy failed (suppressed notice):', copyErr);
+      }
     }
   };
   

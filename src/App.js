@@ -1189,7 +1189,7 @@ function HomePage() {
 
 export default function App() {
   const [theme, setTheme] = useTheme();
-  // Lightweight dynamic title for basic SEO clarity per route
+  // Lightweight dynamic title for basic EO clarity per route
   const location = useLocation();
   useEffect(() => {
     const base = 'Nikolaos Fanourakis';

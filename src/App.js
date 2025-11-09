@@ -246,9 +246,8 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl bg-white/20 border border-white/30 text-white text-sm md:text-base font-semibold shadow-lg backdrop-blur-md animate-fade-in-up flex items-center gap-2"
+          className="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl bg-white/25 border border-white/30 text-white text-sm md:text-base font-semibold shadow-lg backdrop-blur-md animate-fade-in-up flex items-center justify-center"
         >
-          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/30 text-white text-sm">✓</span>
           {notice}
         </div>
       )}
@@ -285,15 +284,18 @@ function Header({ theme, setTheme }) {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-4 text-sm">
-            {navItems.map(item => (
-              <Link 
-                key={item.id}
-                to={location.pathname === '/photos' ? `/${item.href}` : item.href}
-                className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-200 hover:underline focus:outline-none focus:text-slate-800 dark:focus:text-slate-200"
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map(item => {
+              const target = location.pathname === '/' ? item.href : `/${item.href}`; // ensure route change to home for hash targets
+              return (
+                <Link 
+                  key={item.id}
+                  to={target}
+                  className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-200 hover:underline focus:outline-none focus:text-slate-800 dark:focus:text-slate-200"
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
             <Link 
               to="/gallery" 
               className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-200 hover:underline focus:outline-none focus:text-slate-800 dark:focus:text-slate-200"
@@ -324,16 +326,19 @@ function Header({ theme, setTheme }) {
         {isMenuOpen && (
           <nav className="lg:hidden mt-4 pb-4 border-t border-slate-200 dark:border-slate-700">
             <div className="flex flex-col gap-3 pt-4">
-              {navItems.map(item => (
-                <Link 
-                  key={item.id}
-                  to={location.pathname === '/photos' ? `/${item.href}` : item.href}
-                  className="block py-2 px-2 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors duration-200"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {navItems.map(item => {
+                const target = location.pathname === '/' ? item.href : `/${item.href}`;
+                return (
+                  <Link 
+                    key={item.id}
+                    to={target}
+                    className="block py-2 px-2 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
               <Link 
                 to="/gallery" 
                 className="block py-2 px-2 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors duration-200"
@@ -809,12 +814,12 @@ function PhotosPage() {
             ))}
           </div>
 
-          {/* 3x3 uniform grid layout */}
-          <div className="grid grid-cols-3 gap-4">
+          {/* Responsive grid: fewer columns on small screens for larger tiles */}
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
             {currentPhotos.map(photo => (
               <div
                 key={photo.id}
-                className="group relative rounded-lg border overflow-hidden bg-white/20 dark:bg-slate-800/30 backdrop-blur-sm shadow-sm hover:shadow-md transition cursor-pointer aspect-[4/3]"
+                className="group relative rounded-lg border overflow-hidden bg-white/30 dark:bg-slate-800/30 backdrop-blur-sm shadow-sm hover:shadow-md transition cursor-pointer aspect-[4/3] sm:aspect-[4/3]"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -900,9 +905,8 @@ function PhotosPage() {
             <div
               role="status"
               aria-live="polite"
-              className="fixed bottom-8 left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-xl bg-black/70 border border-white/20 text-white text-sm md:text-base font-semibold shadow-lg backdrop-blur-md animate-fade-in-up flex items-center gap-2"
+              className="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl bg-black/70 border border-white/20 text-white text-sm md:text-base font-semibold shadow-lg backdrop-blur-md animate-fade-in-up flex items-center justify-center"
             >
-              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/20 text-white text-sm">✓</span>
               {tileNotice}
             </div>
           )}

@@ -143,23 +143,13 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
 
   // Mobile: attempt to share the actual image file (lets user Save Image to gallery from share sheet)
   const handleMobileSave = async () => {
-    try {
-      setNotice('Preparing image…');
       const response = await fetch(src);
       const blob = await response.blob();
       const fileName = filename || `photo-${photoId}.jpg`;
       const file = new File([blob], fileName, { type: blob.type || 'image/jpeg' });
       const canShareFiles = navigator.canShare && navigator.canShare({ files: [file] });
-      if (canShareFiles) {
-        await navigator.share({ files: [file], title: caption || 'Photo', text: caption || 'Photo' });
-        setNotice('Share sheet opened');
-      } else {
         // Fallback: open in new tab for manual long press
         window.open(src, '_blank');
-      }
-    } finally {
-      setTimeout(() => setNotice(null), 2500);
-    }
   };
 
   return (

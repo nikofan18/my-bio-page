@@ -116,8 +116,29 @@ function useScrollAnimation() {
   }, []);
 }
 
-function Lightbox({ src, caption, equipment, onClose, onNext, onPrev, hasNext, hasPrev }) {
+function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, hasNext, hasPrev }) {
+  const [notice, setNotice] = useState(null); // must be before any conditional return
   if (!src) return null;
+
+  const filename = src.split('/').pop();
+
+  const buildShareUrl = () => {
+    // Deep link to gallery with hash pointing to photo
+    return `${window.location.origin}/gallery#photo-${photoId}`;
+  };
+
+  const handleShare = async () => {
+    const shareUrl = buildShareUrl();
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setNotice('Copied!');
+    } catch (err) {
+      console.warn('Copy failed:', err);
+      setNotice('Copy failed');
+    } finally {
+      setTimeout(() => setNotice(null), 1800);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-4" onClick={onClose}>
@@ -128,6 +149,52 @@ function Lightbox({ src, caption, equipment, onClose, onNext, onPrev, hasNext, h
             alt={caption} 
             className="max-w-full max-h-[85vh] w-auto h-auto rounded shadow-lg mb-4 object-contain" 
           />
+          {/* Icon-only actions: Share (left), Download (right) */}
+          <button
+            onClick={handleShare}
+            className="absolute top-4 left-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
+            aria-label="Share photo"
+            title="Share"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-6 h-6"
+            >
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <path d="M8.59 13.51l6.83 3.98" />
+              <path d="M15.41 6.51L8.59 10.49" />
+            </svg>
+          </button>
+          <a
+            href={src}
+            download={filename || true}
+            className="absolute top-4 right-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
+            aria-label="Download photo"
+            title="Download"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-6 h-6"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <path d="M7 10l5 5 5-5" />
+              <path d="M12 15V3" />
+            </svg>
+          </a>
           
           {/* Previous Button */}
           {hasPrev && (
@@ -165,13 +232,26 @@ function Lightbox({ src, caption, equipment, onClose, onNext, onPrev, hasNext, h
         </div>
       </div>
       
+      {/* Close button (position adjusted below download icon) */}
       <button 
         onClick={onClose}
-        className="absolute top-4 right-4 text-white text-2xl hover:text-gray-300 transition-colors"
+        className="absolute top-16 right-4 text-white/80 hover:text-white text-2xl transition"
+        aria-label="Close lightbox"
         title="Close"
       >
         ✕
       </button>
+
+      {notice && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl bg-white/20 border border-white/30 text-white text-sm md:text-base font-semibold shadow-lg backdrop-blur-md animate-fade-in-up flex items-center gap-2"
+        >
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/30 text-white text-sm">✓</span>
+          {notice}
+        </div>
+      )}
     </div>
   );
 }
@@ -487,6 +567,7 @@ function PhotosPage() {
   const [photosWithMetadata, setPhotosWithMetadata] = useState([]);
   const [loadingMetadata, setLoadingMetadata] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [tileNotice, setTileNotice] = useState(null); // toast for tile share actions
   // Pagination functionality - commented out for now
   // const [currentPage, setCurrentPage] = useState(1);
   // const photosPerPage = 9;
@@ -562,6 +643,22 @@ function PhotosPage() {
   
   // Show all filtered photos when pagination is disabled
   const currentPhotos = filteredPhotos;
+
+  // Share handler for gallery tiles (copies deep-link to clipboard)
+  const handleShareTile = async (e, photo) => {
+    e.preventDefault();
+    e.stopPropagation(); // prevent opening lightbox
+    const shareUrl = `${window.location.origin}/gallery#photo-${photo.id}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setTileNotice('Copied!');
+    } catch (err) {
+      console.warn('Copy failed:', err);
+      setTileNotice('Copy failed');
+    } finally {
+      setTimeout(() => setTileNotice(null), 1800);
+    }
+  };
   
   const currentIndex = active ? filteredPhotos.findIndex(p => p.id === active.id) : -1;
   const hasNext = currentIndex < filteredPhotos.length - 1;
@@ -578,6 +675,24 @@ function PhotosPage() {
       setActive(filteredPhotos[currentIndex - 1]);
     }
   };
+
+  // Open photo from hash on initial mount & hash changes
+  useEffect(() => {
+    const openFromHash = () => {
+      const hash = window.location.hash;
+      if (hash.startsWith('#photo-')) {
+        const idStr = hash.replace('#photo-', '');
+        const id = parseInt(idStr, 10);
+        if (!isNaN(id)) {
+          const match = filteredPhotos.find(p => p.id === id);
+          if (match) setActive(match);
+        }
+      }
+    };
+    openFromHash();
+    window.addEventListener('hashchange', openFromHash);
+    return () => window.removeEventListener('hashchange', openFromHash);
+  }, [filteredPhotos]);
 
   const handleImageError = (id) => {
     setImageErrors(prev => ({ ...prev, [id]: true }));
@@ -723,6 +838,53 @@ function PhotosPage() {
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       onError={() => handleImageError(photo.id)}
                     />
+                    {/* Hover actions: Share (left), Download (right) */}
+                    <button
+                      onClick={(e) => handleShareTile(e, photo)}
+                      className="absolute top-2 left-2 text-white/80 hover:text-white transition-opacity duration-200 opacity-0 group-hover:opacity-100 z-10"
+                      aria-label="Share photo"
+                      title="Share"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-5 h-5"
+                      >
+                        <circle cx="18" cy="5" r="3" />
+                        <circle cx="6" cy="12" r="3" />
+                        <circle cx="18" cy="19" r="3" />
+                        <path d="M8.59 13.51l6.83 3.98" />
+                        <path d="M15.41 6.51L8.59 10.49" />
+                      </svg>
+                    </button>
+                    <a
+                      href={photo.src}
+                      download={photo.src.split('/').pop() || true}
+                      onClick={(e) => e.stopPropagation()}
+                      className="absolute top-2 right-2 text-white/80 hover:text-white transition-opacity duration-200 opacity-0 group-hover:opacity-100 z-10"
+                      aria-label="Download photo"
+                      title="Download"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-5 h-5"
+                      >
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <path d="M7 10l5 5 5-5" />
+                        <path d="M12 15V3" />
+                      </svg>
+                    </a>
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end">
                       <div className="w-full px-2 py-1 text-[11px] sm:text-xs font-medium text-white truncate">
                         {photo.caption}
@@ -733,6 +895,17 @@ function PhotosPage() {
               </div>
             ))}
           </div>
+
+          {tileNotice && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="fixed bottom-8 left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-xl bg-black/70 border border-white/20 text-white text-sm md:text-base font-semibold shadow-lg backdrop-blur-md animate-fade-in-up flex items-center gap-2"
+            >
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/20 text-white text-sm">✓</span>
+              {tileNotice}
+            </div>
+          )}
 
           {/* Pagination Controls - commented out for now
           {totalPages > 1 && (
@@ -841,9 +1014,24 @@ function PhotosPage() {
                 src={active.src} 
                 caption={active.caption} 
                 equipment={active.equipment} 
-                onClose={() => setActive(null)}
-                onNext={handleNextPhoto}
-                onPrev={handlePrevPhoto}
+                photoId={active.id}
+                onClose={() => {
+                  setActive(null);
+                  // Clear hash when closing
+                  if (window.location.hash.startsWith('#photo-')) {
+                    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+                  }
+                }}
+                onNext={() => {
+                  handleNextPhoto();
+                  const next = filteredPhotos.find(p => p.id === filteredPhotos[filteredPhotos.findIndex(p => p.id === active.id) + 1]?.id);
+                  if (next) window.location.hash = `photo-${next.id}`;
+                }}
+                onPrev={() => {
+                  handlePrevPhoto();
+                  const prev = filteredPhotos.find(p => p.id === filteredPhotos[filteredPhotos.findIndex(p => p.id === active.id) - 1]?.id);
+                  if (prev) window.location.hash = `photo-${prev.id}`;
+                }}
                 hasNext={hasNext}
                 hasPrev={hasPrev}
               />

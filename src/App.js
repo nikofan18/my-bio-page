@@ -118,6 +118,7 @@ function useScrollAnimation() {
 
 function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, hasNext, hasPrev }) {
   const [notice, setNotice] = useState(null); // must be before any conditional return
+  const [isFullscreen, setIsFullscreen] = useState(false);
   // Refined mobile detection: treat only phones as mobile (exclude iPad and desktop macOS Safari)
   const isMobile = (() => {
     if (typeof navigator === 'undefined') return false;
@@ -129,9 +130,8 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
     // Match iPhone or Android Mobile specifically; exclude iPad and Macintosh
     return /iPhone|Android.+Mobile|iPod/i.test(ua);
   })();
-  if (!src) return null;
-
-  const filename = src.split('/').pop();
+  // Compute filename defensively (avoid conditional return before hooks)
+  const filename = src ? src.split('/').pop() : '';
 
   const buildShareUrl = () => {
     // Deep link to gallery with hash pointing to photo
@@ -140,14 +140,6 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
 
   const handleShare = async () => {
     const shareUrl = buildShareUrl();
-    const isMobile = (() => {
-      if (typeof navigator === 'undefined') return false;
-      if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
-        return navigator.userAgentData.mobile;
-      }
-      const ua = navigator.userAgent;
-      return /iPhone|Android.+Mobile|iPod/i.test(ua);
-    })();
     const canNativeShare = typeof navigator !== 'undefined' && navigator.share;
     if (isMobile) {
       if (canNativeShare) {
@@ -165,13 +157,57 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
     }
   };
 
+  const exitFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+    setIsFullscreen(false);
+  };
+
+  const toggleFullscreen = () => {
+    const container = document.getElementById('lightbox-fullscreen-wrapper');
+    if (!container) return;
+    // If Fullscreen API available, use it; else fallback to CSS class
+    if (!document.fullscreenElement) {
+      if (container.requestFullscreen) {
+        container.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => setIsFullscreen(true));
+      } else {
+        setIsFullscreen(true);
+      }
+    } else {
+      exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        exitFullscreen();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  useEffect(() => {
+    // Clean up fullscreen when component unmounts or src changes
+    return () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+    };
+  }, [src]);
+
+  // Perform early return AFTER hooks to satisfy react-hooks/rules-of-hooks
+  if (!src) return null;
+
   // Lightbox uses native anchor behavior like gallery tiles; no custom download handler.
 
   // Desktop download handler with Safari fallback (Safari often ignores download attribute or blocks file save silently)
   // No desktop handler needed; use direct anchor like gallery tiles
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-4" onClick={onClose}>
+    <div id="lightbox-fullscreen-wrapper" className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-4 ${isFullscreen ? 'fullscreen-active' : ''}`} onClick={onClose}>
       <div className="flex flex-col items-center max-w-[95vw] max-h-[95vh]" onClick={(e) => e.stopPropagation()}>
         <div className="group relative">
           <img 
@@ -179,30 +215,7 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
             alt={caption} 
             className="max-w-full max-h-[85vh] w-auto h-auto rounded shadow-lg mb-4 object-contain"
           />
-          {/* Icon-only actions: Share (left), Download (right) */}
-          <button
-            onClick={handleShare}
-            className="absolute top-4 left-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
-            aria-label="Share photo"
-            title="Share"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-6 h-6"
-            >
-              <circle cx="18" cy="5" r="3" />
-              <circle cx="6" cy="12" r="3" />
-              <circle cx="18" cy="19" r="3" />
-              <path d="M8.59 13.51l6.83 3.98" />
-              <path d="M15.41 6.51L8.59 10.49" />
-            </svg>
-          </button>
+          {/* Icon-only actions: Download (top-right), Share (below), Fullscreen (below Share) */}
           <a
             href={src}
             download={filename || true}
@@ -225,6 +238,56 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
               <path d="M12 15V3" />
             </svg>
           </a>
+          <button
+            onClick={handleShare}
+            className="absolute top-14 right-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
+            aria-label="Share photo"
+            title="Share"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-6 h-6"
+            >
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <path d="M8.59 13.51l6.83 3.98" />
+              <path d="M15.41 6.51L8.59 10.49" />
+            </svg>
+          </button>
+          {/* Fullscreen Toggle Button (moved to left side) */}
+          <button
+            onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
+            className="absolute top-4 left-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
+            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+          >
+            {isFullscreen ? (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+                <path d="M9 9L5 5" />
+                <path d="M5 9V5H9" />
+                <path d="M15 9L19 5" />
+                <path d="M19 9V5H15" />
+                <path d="M15 15l4 4" />
+                <path d="M19 15v4h-4" />
+                <path d="M9 15l-4 4" />
+                <path d="M5 15v4h4" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+                <path d="M15 3h6v6" />
+                <path d="M9 21H3v-6" />
+                <path d="M21 15v6h-6" />
+                <path d="M3 9V3h6" />
+              </svg>
+            )}
+          </button>
           
           {/* Previous Button */}
           {hasPrev && (

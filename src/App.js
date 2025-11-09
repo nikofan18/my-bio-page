@@ -61,6 +61,78 @@ const PLACEHOLDERS = {
   ],
 };
 
+// Global helper to download an image with an applied textual watermark using Canvas
+async function downloadImageWithWatermark({ src, filename, watermark }) {
+  try {
+    if (!src) return;
+    const img = await new Promise((resolve, reject) => {
+      const image = new Image();
+      image.crossOrigin = 'anonymous'; // ensure CORS-safe for canvas export (same-origin paths are fine)
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = src;
+    });
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+
+    // Watermark styling (bottom-right)
+    const maxDim = Math.max(canvas.width, canvas.height);
+    const padding = maxDim * 0.02; // 2% padding
+    const fontSize = Math.max(14, Math.round(maxDim * 0.035));
+    ctx.font = `${fontSize}px sans-serif`;
+    ctx.textBaseline = 'bottom';
+    const text = watermark || '';
+    const metrics = ctx.measureText(text);
+    const textWidth = metrics.width;
+    const x = canvas.width - textWidth - padding;
+    const y = canvas.height - padding;
+
+    // Background rectangle for readability
+    const rectPadX = fontSize * 0.5;
+    const rectPadY = fontSize * 0.4;
+    const rectX = x - rectPadX;
+    const rectY = y - fontSize - rectPadY / 2;
+    const rectW = textWidth + rectPadX * 2;
+    const rectH = fontSize + rectPadY;
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    if (ctx.roundRect) {
+      ctx.beginPath();
+      ctx.roundRect(rectX, rectY, rectW, rectH, Math.min(fontSize * 0.4, 18));
+      ctx.fill();
+    } else {
+      ctx.fillRect(rectX, rectY, rectW, rectH);
+    }
+    // Text stroke + fill
+    ctx.lineWidth = Math.max(2, fontSize * 0.06);
+    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.strokeText(text, x, y);
+    ctx.fillText(text, x, y);
+
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
+    if (!blob) throw new Error('Blob generation failed');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename || 'photo.jpg';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  } catch (err) {
+    console.warn('Watermark download failed, falling back to direct file:', err);
+    const a = document.createElement('a');
+    a.href = src;
+    a.download = filename || 'photo.jpg';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+}
+
 function useTheme() {
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
 
@@ -131,6 +203,15 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
 
   const buildShareUrl = () => `${window.location.origin}/gallery#photo-${photoId}`;
 
+  const handleDownload = async (e) => {
+    e.stopPropagation();
+    await downloadImageWithWatermark({
+      src,
+      filename,
+      watermark: `${caption || 'Photo'} © ${new Date().getFullYear()} ${PROFILE.name}`
+    });
+  };
+
   const handleShare = async () => {
     const shareUrl = buildShareUrl();
     const canNativeShare = typeof navigator !== 'undefined' && navigator.share;
@@ -167,7 +248,9 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
           <img
             src={src}
             alt={caption}
-            className="max-w-full max-h-[85vh] w-auto h-auto rounded shadow-lg mb-4 object-contain"
+            className="max-w-full max-h-[85vh] w-auto h-auto rounded shadow-lg mb-4 object-contain select-none"
+            draggable={false}
+            onContextMenu={(e) => e.preventDefault()}
           />
           {/* Actions: Share (top-left), Download (top-right) */}
           <button
@@ -193,12 +276,11 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
               <path d="M15.41 6.51L8.59 10.49" />
             </svg>
           </button>
-          <a
-            href={src}
-            download={filename || true}
+          <button
+            onClick={handleDownload}
             className="absolute top-4 right-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
-            aria-label="Download photo"
-            title="Download"
+            aria-label="Download photo (watermarked)"
+            title="Download (watermarked)"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -214,7 +296,7 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
               <path d="M7 10l5 5 5-5" />
               <path d="M12 15V3" />
             </svg>
-          </a>
+          </button>
           {/* Previous Button */}
           {hasPrev && (
             <button
@@ -867,8 +949,10 @@ function PhotosPage() {
                       alt={photo.caption}
                       loading="lazy"
                       decoding="async"
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 select-none"
                       onError={() => handleImageError(photo.id)}
+                      draggable={false}
+                      onContextMenu={(e) => e.preventDefault()}
                     />
                     {/* Hover actions: Share (left), Download (right) */}
                     <button
@@ -894,13 +978,18 @@ function PhotosPage() {
                         <path d="M15.41 6.51L8.59 10.49" />
                       </svg>
                     </button>
-                    <a
-                      href={photo.src}
-                      download={photo.src.split('/').pop() || true}
-                      onClick={(e) => e.stopPropagation()}
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        await downloadImageWithWatermark({
+                          src: photo.src,
+                          filename: photo.src.split('/').pop(),
+                          watermark: `© ${new Date().getFullYear()} Nikos Fanourakis`
+                        });
+                      }}
                       className="absolute top-2 right-2 text-white/80 hover:text-white transition-opacity duration-200 opacity-0 group-hover:opacity-100 z-10"
-                      aria-label="Download photo"
-                      title="Download"
+                      aria-label="Download watermarked photo"
+                      title="Download (watermarked)"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -916,7 +1005,7 @@ function PhotosPage() {
                         <path d="M7 10l5 5 5-5" />
                         <path d="M12 15V3" />
                       </svg>
-                    </a>
+                    </button>
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end">
                       <div className="w-full px-2 py-1 text-[11px] sm:text-xs font-medium text-white truncate">
                         {photo.caption}

@@ -1189,6 +1189,14 @@ function HomePage() {
 
 export default function App() {
   const [theme, setTheme] = useTheme();
+  // Lightweight dynamic title for basic SEO clarity per route
+  const location = useLocation();
+  useEffect(() => {
+    const base = 'Nikolaos Fanourakis';
+    let suffix = 'Portfolio';
+    if (location.pathname.startsWith('/gallery')) suffix = 'Photography Gallery';
+    document.title = `${base} – ${suffix}`;
+  }, [location.pathname]);
   return (
     <Router>
       <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-200">

@@ -118,6 +118,8 @@ function useScrollAnimation() {
 
 function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, hasNext, hasPrev }) {
   const [notice, setNotice] = useState(null); // must be before any conditional return
+  const [rotated, setRotated] = useState(false);
+  const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   if (!src) return null;
 
   const filename = src.split('/').pop();
@@ -147,7 +149,8 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
           <img 
             src={src} 
             alt={caption} 
-            className="max-w-full max-h-[85vh] w-auto h-auto rounded shadow-lg mb-4 object-contain" 
+            className={`max-w-full max-h-[85vh] w-auto h-auto rounded shadow-lg mb-4 object-contain transition-transform duration-300 ${rotated ? 'rotate-90' : ''}`}
+            style={rotated ? { maxHeight: '85vh' } : undefined}
           />
           {/* Icon-only actions: Share (left), Download (right) */}
           <button
@@ -173,28 +176,56 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
               <path d="M15.41 6.51L8.59 10.49" />
             </svg>
           </button>
-          <a
-            href={src}
-            download={filename || true}
-            className="absolute top-4 right-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
-            aria-label="Download photo"
-            title="Download"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-6 h-6"
+          {isMobile ? (
+            <button
+              onClick={() => {
+                window.open(src, '_blank');
+                setNotice('Opened image — long press to save');
+                setTimeout(() => setNotice(null), 2200);
+              }}
+              className="absolute top-4 right-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
+              aria-label="Open image in new tab"
+              title="Open image"
             >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <path d="M7 10l5 5 5-5" />
-              <path d="M12 15V3" />
-            </svg>
-          </a>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-6 h-6"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <path d="M7 10l5 5 5-5" />
+                <path d="M12 15V3" />
+              </svg>
+            </button>
+          ) : (
+            <a
+              href={src}
+              download={filename || true}
+              className="absolute top-4 right-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
+              aria-label="Download photo"
+              title="Download"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-6 h-6"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <path d="M7 10l5 5 5-5" />
+                <path d="M12 15V3" />
+              </svg>
+            </a>
+          )}
           
           {/* Previous Button */}
           {hasPrev && (
@@ -217,6 +248,32 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
               ›
             </button>
           )}
+
+          {/* Rotate / Fullscreen toggle (acts as rotate) */}
+          <button
+            onClick={() => setRotated(r => !r)}
+            className="absolute top-16 left-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
+            aria-label={rotated ? 'Exit rotated view' : 'Rotate photo'}
+            title={rotated ? 'Exit rotate' : 'Rotate'}
+          >
+            {rotated ? (
+              // Exit (undo rotate) icon
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+                <path d="M3 12a9 9 0 1 0 9-9" />
+                <path d="M3 4v8h8" />
+              </svg>
+            ) : (
+              // Rotate icon
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+                <path d="M16 4h2a2 2 0 0 1 2 2v2" />
+                <path d="M8 20h-2a2 2 0 0 1-2-2v-2" />
+                <path d="M9 15l3 3-3 3" />
+                <path d="M15 9l-3-3 3-3" />
+                <path d="M4 12a8 8 0 0 1 8-8" />
+                <path d="M20 12a8 8 0 0 1-8 8" />
+              </svg>
+            )}
+          </button>
         </div>
         
         <div className="text-center">

@@ -1,4 +1,10 @@
-<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-  <rect width="16" height="16" fill="#3b82f6"/>
-  <text x="2" y="12" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white">NF</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e3a8a"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="12" fill="url(#g)"/>
+  <text x="50%" y="50%" font-family="'Inter', 'Arial', sans-serif" font-size="30" font-weight="700" fill="#f8fafc" text-anchor="middle" dominant-baseline="central">NF</text>
 </svg>

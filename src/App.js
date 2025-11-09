@@ -54,7 +54,6 @@ const PLACEHOLDERS = {
     { id: 1, src: `/photos/DSC_0085.jpg`, caption: `Graffiti Building`, equipment: null, category: "street" },
     { id: 2, src: `/photos/DSC_0102.jpg`, caption: `Stubbles`, equipment: null, category: "nature" },
     { id: 3, src: `/photos/DSC_0114.jpg`, caption: `Skateboard Platform`, equipment: null, category: "street" },
-    { id: 4, src: `/photos/DSC_0398.JPG`, caption: `Doggy`, equipment: null, category: "animal" },
     { id: 5, src: `/photos/DSC_0471.JPG`, caption: `The big boss`, equipment: null, category: "animal" },
     { id: 6, src: `/photos/IMG_2971.jpg`, caption: `The krow`, equipment: null, category: "animal" },
     { id: 7, src: `/photos/DSC_0579.jpg`, caption: `Blue Nature`, equipment: null, category: "nature" },

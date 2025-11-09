@@ -118,7 +118,17 @@ function useScrollAnimation() {
 
 function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, hasNext, hasPrev }) {
   const [notice, setNotice] = useState(null); // must be before any conditional return
-  const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  // Refined mobile detection: treat only phones as mobile (exclude iPad and desktop macOS Safari)
+  const isMobile = (() => {
+    if (typeof navigator === 'undefined') return false;
+    // Prefer userAgentData if available
+    if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
+      return navigator.userAgentData.mobile; // true for phones, false for desktop/iPad in most modern browsers
+    }
+    const ua = navigator.userAgent;
+    // Match iPhone or Android Mobile specifically; exclude iPad and Macintosh
+    return /iPhone|Android.+Mobile|iPod/i.test(ua);
+  })();
   if (!src) return null;
 
   const filename = src.split('/').pop();
@@ -130,26 +140,28 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
 
   const handleShare = async () => {
     const shareUrl = buildShareUrl();
+    const isMobile = (() => {
+      if (typeof navigator === 'undefined') return false;
+      if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
+        return navigator.userAgentData.mobile;
+      }
+      const ua = navigator.userAgent;
+      return /iPhone|Android.+Mobile|iPod/i.test(ua);
+    })();
     const canNativeShare = typeof navigator !== 'undefined' && navigator.share;
-    const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (canNativeShare) {
-      try {
-        await navigator.share({ url: shareUrl, title: caption || 'Photo', text: caption || 'Photo' });
-        return; // mobile native share or desktop supporting share
-      } catch (shareErr) {
-        // If share fails on mobile, do not copy (mobile should not show copied per requirement)
-        if (isMobile) return;
+    if (isMobile) {
+      if (canNativeShare) {
+        try { await navigator.share({ url: shareUrl, title: caption || 'Photo', text: caption || 'Photo' }); } catch (err) { /* no fallback copy on mobile */ }
       }
+      return; // mobile never copies
     }
-    // Desktop browsers only: perform copy
-    if (!isMobile) {
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        setNotice('Copied!');
-        setTimeout(() => setNotice(null), 1800);
-      } catch (copyErr) {
-        console.warn('Desktop copy failed (suppressed notice):', copyErr);
-      }
+    // Desktop: always copy (ignore native share presence per requirement)
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setNotice('Copied!');
+      setTimeout(() => setNotice(null), 1800);
+    } catch (err) {
+      console.warn('Desktop copy failed (suppressed notice):', err);
     }
   };
 
@@ -671,24 +683,28 @@ function PhotosPage() {
     e.preventDefault();
     e.stopPropagation(); // prevent opening lightbox
     const shareUrl = `${window.location.origin}/gallery#photo-${photo.id}`;
+    const isMobile = (() => {
+      if (typeof navigator === 'undefined') return false;
+      if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
+        return navigator.userAgentData.mobile;
+      }
+      const ua = navigator.userAgent;
+      return /iPhone|Android.+Mobile|iPod/i.test(ua);
+    })();
     const canNativeShare = typeof navigator !== 'undefined' && navigator.share;
-    const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (canNativeShare) {
-      try {
-        await navigator.share({ url: shareUrl, title: photo.caption || 'Photo', text: photo.caption || 'Photo' });
-        return;
-      } catch (shareErr) {
-        if (isMobile) return; // do not copy on mobile if share fails
+    if (isMobile) {
+      if (canNativeShare) {
+        try { await navigator.share({ url: shareUrl, title: photo.caption || 'Photo', text: photo.caption || 'Photo' }); } catch (err) { /* silent */ }
       }
+      return; // mobile: no copy
     }
-    if (!isMobile) {
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        setTileNotice('Copied!');
-        setTimeout(() => setTileNotice(null), 1800);
-      } catch (copyErr) {
-        console.warn('Desktop copy failed (suppressed notice):', copyErr);
-      }
+    // Desktop: copy URL
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setTileNotice('Copied!');
+      setTimeout(() => setTileNotice(null), 1800);
+    } catch (err) {
+      console.warn('Desktop copy failed (suppressed notice):', err);
     }
   };
   

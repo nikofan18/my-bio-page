@@ -151,9 +151,14 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
       const fileName = filename || `photo-${photoId}.jpg`;
       const file = new File([blob], fileName, { type: blob.type || 'image/jpeg' });
       const canShareFiles = navigator.canShare && navigator.canShare({ files: [file] });
+      if (canShareFiles) {
+        await navigator.share({ files: [file], title: caption || 'Photo', text: caption || 'Photo' });
+        setNotice('Share sheet opened');
+      } else {
         // Fallback: open in new tab for manual long press
         window.open(src, '_blank');
         setNotice('Opened — long press to save');
+      }
     } catch (err) {
       console.warn('Share failed:', err);
       window.open(src, '_blank');

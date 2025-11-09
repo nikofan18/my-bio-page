@@ -130,24 +130,23 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
 
   const handleShare = async () => {
     const shareUrl = buildShareUrl();
+    const canNativeShare = typeof navigator !== 'undefined' && navigator.share;
+    if (canNativeShare) {
+      try {
+        await navigator.share({ url: shareUrl, title: caption || 'Photo', text: caption || 'Photo' });
+        // Successful native share: no toast, exit.
+        return;
+      } catch (shareErr) {
+        // Native share failed or was cancelled; fall back to copy.
+      }
+    }
     try {
       await navigator.clipboard.writeText(shareUrl);
-      // Always show only the copied notice (suppress native share success/failure toasts)
       setNotice('Copied!');
-      // Fire and forget native share if available, but do not alter the notice
-      const canNativeShare = typeof navigator !== 'undefined' && navigator.share;
-      if (canNativeShare) {
-        try {
-          await navigator.share({ url: shareUrl, title: caption || 'Photo', text: caption || 'Photo' });
-        } catch (shareErr) {
-          // Ignore cancellation/errors silently
-        }
-      }
-    } catch (err) {
-      // Suppress failure notice per requirement (only show Copied!)
-      console.warn('Copy failed (suppressed notice):', err);
+    } catch (copyErr) {
+      console.warn('Copy fallback failed (suppressed notice):', copyErr);
     } finally {
-      setTimeout(() => setNotice(null), 1800);
+      if (notice) setTimeout(() => setNotice(null), 1800);
     }
   };
 
@@ -669,21 +668,22 @@ function PhotosPage() {
     e.preventDefault();
     e.stopPropagation(); // prevent opening lightbox
     const shareUrl = `${window.location.origin}/gallery#photo-${photo.id}`;
+    const canNativeShare = typeof navigator !== 'undefined' && navigator.share;
+    if (canNativeShare) {
+      try {
+        await navigator.share({ url: shareUrl, title: photo.caption || 'Photo', text: photo.caption || 'Photo' });
+        return; // no toast on successful native share
+      } catch (shareErr) {
+        // fall through to copy fallback
+      }
+    }
     try {
       await navigator.clipboard.writeText(shareUrl);
       setTileNotice('Copied!');
-      const canNativeShare = typeof navigator !== 'undefined' && navigator.share;
-      if (canNativeShare) {
-        try {
-          await navigator.share({ url: shareUrl, title: photo.caption || 'Photo', text: photo.caption || 'Photo' });
-        } catch (shareErr) {
-          // Ignore; keep Copied! toast
-        }
-      }
-    } catch (err) {
-      console.warn('Copy failed (suppressed notice):', err);
+    } catch (copyErr) {
+      console.warn('Copy fallback failed (suppressed notice):', copyErr);
     } finally {
-      setTimeout(() => setTileNotice(null), 1800);
+      if (tileNotice) setTimeout(() => setTileNotice(null), 1800);
     }
   };
   

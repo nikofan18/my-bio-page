@@ -3,4 +3,4 @@ User-agent: *
 Disallow:
 
 # Allow all bots. Sitemap helps discovery of key routes.
-Sitemap: https://nikofan18.github.io/my-bio-page/sitemap.xml
+Sitemap: https://www.nfanourakis.com/sitemap.xml

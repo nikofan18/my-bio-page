@@ -9,7 +9,7 @@ const PROFILE = {
   email: "nikosfanourakis5@gmail.com",
   github: "https://github.com/nikofan18",
   linkedin: "https://www.linkedin.com/notifications/?filter=all",
-  cv: "/Fanourakis_CV.pdf",
+  cv: `${process.env.PUBLIC_URL}/Fanourakis_CV.pdf`,
   shortBio:
     "Data Scientist with a PhD in Computer Science specializing in machine learning, graph neural networks, embeddings and entity alignment. Currently working at SATALIA, developing innovative ML / AI solutions for real-world challenges and data pipelines. Passionate about research, data science, and software engineering.",
 };
@@ -51,13 +51,13 @@ const PLACEHOLDERS = {
     { title: "Fairness in AI", issuer: "1st Greek ACM-W Chapter Winter School", date: "2022", expiry: "Never", link: "https://drive.google.com/file/d/1o8Fm4tosETu_iPi54lstq3b0nzJ8K-DC/view?pli=1", badge: "🤖" },
   ],
   photos: [
-    { id: 1, src: `/photos/DSC_0085.jpg`, caption: `Graffiti Building`, equipment: null, category: "street" },
-    { id: 2, src: `/photos/DSC_0102.jpg`, caption: `Stubbles`, equipment: null, category: "nature" },
-    { id: 3, src: `/photos/DSC_0114.jpg`, caption: `Skateboard Platform`, equipment: null, category: "street" },
-    { id: 5, src: `/photos/DSC_0471.JPG`, caption: `The big boss`, equipment: null, category: "animal" },
-    { id: 6, src: `/photos/IMG_2971.jpg`, caption: `The krow`, equipment: null, category: "animal" },
-    { id: 7, src: `/photos/DSC_0579.jpg`, caption: `Blue Nature`, equipment: null, category: "nature" },
-    { id: 8, src: `/photos/playfull_cat.jpg`, caption: `Playfull Cat`, equipment: null, category: "animal" },
+    { id: 1, src: `${process.env.PUBLIC_URL}/photos/DSC_0085.jpg`, caption: `Graffiti Building`, equipment: null, category: "street" },
+    { id: 2, src: `${process.env.PUBLIC_URL}/photos/DSC_0102.jpg`, caption: `Stubbles`, equipment: null, category: "nature" },
+    { id: 3, src: `${process.env.PUBLIC_URL}/photos/DSC_0114.jpg`, caption: `Skateboard Platform`, equipment: null, category: "street" },
+    { id: 5, src: `${process.env.PUBLIC_URL}/photos/DSC_0471.JPG`, caption: `The big boss`, equipment: null, category: "animal" },
+    { id: 6, src: `${process.env.PUBLIC_URL}/photos/IMG_2971.jpg`, caption: `The krow`, equipment: null, category: "animal" },
+    { id: 7, src: `${process.env.PUBLIC_URL}/photos/DSC_0579.jpg`, caption: `Blue Nature`, equipment: null, category: "nature" },
+    { id: 8, src: `${process.env.PUBLIC_URL}/photos/playfull_cat.jpg`, caption: `Playfull Cat`, equipment: null, category: "animal" },
   ],
 };
 
@@ -1186,10 +1186,21 @@ function HomePage() {
   );
 }
 
+function TitleUpdater() {
+  const location = useLocation();
+  useEffect(() => {
+    const base = 'Nikolaos Fanourakis';
+    const page = location.pathname === '/gallery' ? 'Photography Gallery' : 'Portfolio & Publications';
+    document.title = `${base} — ${page}`;
+  }, [location.pathname]);
+  return null;
+}
+
 export default function App() {
   const [theme, setTheme] = useTheme();
   return (
-    <Router>
+  <Router basename={(process.env.PUBLIC_URL || '').replace(/^https?:\/\/[^/]+/, '') || '/'}>
+      <TitleUpdater />
       <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-200">
         <Header theme={theme} setTheme={setTheme} />
         <Routes>

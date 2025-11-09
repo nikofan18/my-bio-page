@@ -149,10 +149,19 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
     }
   };
 
+  // Lock background scroll while lightbox is open
+  useEffect(() => {
+    if (!src) return; // don't lock if nothing shown
+    document.body.classList.add('prevent-lightbox-scroll');
+    return () => {
+      document.body.classList.remove('prevent-lightbox-scroll');
+    };
+  }, [src]);
+
   if (!src) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-4" onClick={onClose}>
+    <div className="lightbox-container fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-4" onClick={onClose}>
       <div className="flex flex-col items-center max-w-[95vw] max-h-[95vh]" onClick={(e) => e.stopPropagation()}>
         <div className="group relative">
           <img

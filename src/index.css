@@ -102,3 +102,29 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Lightbox full-viewport handling on iOS Safari (dynamic viewport units & safe areas) */
+.lightbox-container {
+  /* Use dynamic viewport height to avoid iOS address bar shrinking issues */
+  height: 100dvh;
+  min-height: 100dvh;
+  width: 100vw;
+  /* Account for notches / safe areas */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@supports (height: 100svh) {
+  .lightbox-container { height: 100svh; min-height: 100svh; }
+}
+
+@supports (height: 100lvh) {
+  /* Large viewport for cases when browser chrome hidden */
+  .lightbox-container { height: 100lvh; }
+}
+
+/* Prevent background scroll when lightbox open */
+body.prevent-lightbox-scroll {
+  overflow: hidden;
+  touch-action: none;
+}

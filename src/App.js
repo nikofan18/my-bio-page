@@ -190,6 +190,7 @@ function useScrollAnimation() {
 
 function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, hasNext, hasPrev }) {
   const [notice, setNotice] = useState(null); // must be before any conditional return
+  const [storyHint, setStoryHint] = useState(null); // toast for story prep fallback
   // Refined mobile detection: treat only phones as mobile (exclude iPad and desktop macOS Safari)
   const isMobile = (() => {
     if (typeof navigator === 'undefined') return false;
@@ -230,6 +231,60 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
     }
   };
 
+  // Attempt to share photo file so Instagram Story option may appear (mobile only)
+  const handleShareStory = async (e) => {
+    e.stopPropagation();
+    if (!src || !navigator.share) {
+      prepareStoryFallback();
+      return;
+    }
+    try {
+      const response = await fetch(src, { cache: 'no-cache' });
+      const blob = await response.blob();
+      const file = new File([blob], filename || 'photo.jpg', { type: blob.type || 'image/jpeg' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: caption || 'Photo', text: caption || 'Photo' });
+          return;
+        } catch (shareErr) {
+          console.warn('File share cancelled or failed:', shareErr);
+        }
+      }
+      // Fallback to url share if file share unsupported
+      try {
+        await navigator.share({ url: src, title: caption || 'Photo', text: caption || 'Photo' });
+      } catch (urlErr) {
+        console.warn('URL share failed; using fallback', urlErr);
+        prepareStoryFallback();
+      }
+    } catch (err) {
+      console.warn('Story share preparation failed:', err);
+      prepareStoryFallback();
+    }
+  };
+
+  // Download + copy caption fallback instructions
+  const prepareStoryFallback = async () => {
+    try {
+      const response = await fetch(src);
+      const blob = await response.blob();
+      const dlUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = dlUrl;
+      a.download = filename || 'photo.jpg';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(dlUrl), 1500);
+      if (navigator.clipboard && caption) {
+        try { await navigator.clipboard.writeText(caption); } catch(_) {}
+      }
+      setStoryHint('Saved & caption copied. Open Instagram → Story → select the image.');
+      setTimeout(() => setStoryHint(null), 4000);
+    } catch (e) {
+      setStoryHint('Save failed. Long press to save manually then open Instagram Story.');
+      setTimeout(() => setStoryHint(null), 4000);
+    }
+  };
+
   // Lock background scroll while lightbox is open
   useEffect(() => {
     if (!src) return; // don't lock if nothing shown
@@ -252,7 +307,7 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
             draggable={false}
             onContextMenu={(e) => e.preventDefault()}
           />
-          {/* Actions: Share (top-left), Download (top-right) */}
+          {/* Actions: share (top-left), Download (top-right) */}
           <button
             onClick={handleShare}
             className="absolute top-4 left-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
@@ -328,6 +383,23 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
               </span>
             </p>
           )}
+          {/* Instagram Story Share Button (mobile emphasis) */}
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <button
+              onClick={handleShareStory}
+              className="px-4 py-2 rounded-lg bg-white/15 hover:bg-white/25 text-white text-sm font-medium backdrop-blur-sm border border-white/30 transition"
+              title="Share or prepare for Instagram Story"
+            >
+              Share Story
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); prepareStoryFallback(); }}
+              className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/90 text-sm font-medium backdrop-blur-sm border border-white/25 transition"
+              title="Download & copy caption for Story"
+            >
+              Prepare Story
+            </button>
+          </div>
         </div>
       </div>
       {/* Close button */}
@@ -346,6 +418,15 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
           className="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl bg-white/25 border border-white/30 text-white text-sm md:text-base font-semibold shadow-lg backdrop-blur-md animate-fade-in-up flex items-center justify-center"
         >
           {notice}
+        </div>
+      )}
+      {storyHint && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-24 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl bg-black/70 border border-white/25 text-white text-sm md:text-base font-medium shadow-lg backdrop-blur-md animate-fade-in-up flex items-center justify-center max-w-[90vw]"
+        >
+          {storyHint}
         </div>
       )}
     </div>

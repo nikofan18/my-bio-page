@@ -156,12 +156,7 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
       } else {
         // Fallback: open in new tab for manual long press
         window.open(src, '_blank');
-        setNotice('Opened — long press to save');
       }
-    } catch (err) {
-      console.warn('Share failed:', err);
-      window.open(src, '_blank');
-      setNotice('Fallback open — long press to save');
     } finally {
       setTimeout(() => setNotice(null), 2500);
     }

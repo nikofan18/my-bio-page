@@ -141,16 +141,7 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
     }
   };
 
-  // Mobile: attempt to share the actual image file (lets user Save Image to gallery from share sheet)
-  const handleMobileSave = async () => {
-      const response = await fetch(src);
-      const blob = await response.blob();
-      const fileName = filename || `photo-${photoId}.jpg`;
-      const file = new File([blob], fileName, { type: blob.type || 'image/jpeg' });
-      const canShareFiles = navigator.canShare && navigator.canShare({ files: [file] });
-        // Fallback: open in new tab for manual long press
-        window.open(src, '_blank');
-  };
+  // Lightbox uses native anchor behavior like gallery tiles; no custom download handler.
 
   // Desktop download handler with Safari fallback (Safari often ignores download attribute or blocks file save silently)
   // No desktop handler needed; use direct anchor like gallery tiles
@@ -188,52 +179,28 @@ function Lightbox({ src, caption, equipment, photoId, onClose, onNext, onPrev, h
               <path d="M15.41 6.51L8.59 10.49" />
             </svg>
           </button>
-          {isMobile ? (
-            <button
-              onClick={handleMobileSave}
-              className="absolute top-4 right-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
-              aria-label="Save/share image"
-              title="Save / Share"
+          <a
+            href={src}
+            download={filename || true}
+            className="absolute top-4 right-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
+            aria-label="Download photo"
+            title="Download"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-6 h-6"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-6 h-6"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <path d="M7 10l5 5 5-5" />
-                <path d="M12 15V3" />
-              </svg>
-            </button>
-          ) : (
-            <a
-              href={src}
-              download={filename || true}
-              className="absolute top-4 right-4 text-white/80 hover:text-white transition opacity-0 group-hover:opacity-100"
-              aria-label="Download photo"
-              title="Download"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-6 h-6"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <path d="M7 10l5 5 5-5" />
-                <path d="M12 15V3" />
-              </svg>
-            </a>
-          )}
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <path d="M7 10l5 5 5-5" />
+              <path d="M12 15V3" />
+            </svg>
+          </a>
           
           {/* Previous Button */}
           {hasPrev && (
